@@ -48,9 +48,9 @@ TSC_145 = bytes([0x61, 0x08, 0x4F, 0x06, 0xFF,
 ################################################################################
 @dataclass
 class cHeader:
-    FID:       bytes
-    Appendix:  bytearray = bytearray([0x00] * 1)
-    Length:    bytearray = bytearray([0x00] * 3)
+    fid:         bytes
+    appendix:    bytearray = bytearray([0x00] * 1)
+    data_length: bytearray = bytearray([0x00] * 3)
 ################################################################################
 # EF ICC                                                                       #
 ################################################################################

@@ -1,6 +1,9 @@
+from email import header
+from unicodedata import name
 from tacho_lib import tacho_gen1
 from dataclasses import fields, is_dataclass
 from datetime import datetime
+import copy
 
 def iterate_test(dataclass, depth_symbol: str = " ", depth: int = 1):
     if depth < 0:
@@ -41,55 +44,68 @@ def save_raw_data_to_file(data: bytearray | bytes):
         file.close()
 
 def do_analysis(data: bytearray | bytes):
-    idx: int = 0
-    fid_list = list(tacho_gen1)
+    data_idx: int = 0
 
+    fid_list = list(tacho_gen1.eFID)
+    fid_idx: int = 0
+
+    header = tacho_gen1.cHeader(bytes([0x00, 0x00]))
+    header_list: list = []
+
+    HEADER_OFFSET = 5 # fid + appendix + data_length bytes
+
+    while data_idx < len(data):
+        if fid_idx == len(fid_list) and data_idx < len(data):
+            fid_idx = 0
+        while fid_idx < len(fid_list):
+            if data[data_idx:data_idx+2] != fid_list[fid_idx].value["FID"]:
+                fid_idx += 1
+                break
+            header.fid = data[data_idx:data_idx+2]
+            header.appendix = data[data_idx+2]
+            header.data_length = data[data_idx+3:data_idx+5]
+            data_idx = data_idx + int.from_bytes(header.data_length, "big") + HEADER_OFFSET
+            header_list.append(header)
+            header_list = copy.deepcopy(header_list)
+    return header_list
 
 def print_analysis(data: bytearray | bytes):
     separator = "+" + "-" * 38 + "+" + "-" * 39 + "+"
+    separate: bool = True
+    headers_list = do_analysis(data)
     idx: int = 0
-    fid_list = list(tacho_gen1.eFID)
-    fid_pointer: int = 0
-    fid = bytes([0x00] * 2)
-    fid_previous = bytes([0x00] * 2)
 
     print("#" * 80)
     print("# {:^76} #".format("ANALYSIS REPORT"))
     print("#" * 80)
     print(separator)
 
-    while idx < len(data):
-        while fid_pointer < len(tacho_gen1.eFID):
-            if data[idx:idx+2] == fid_list[fid_pointer].value:
+    while idx < len(headers_list):
+        separate = True
+        if headers_list[idx].fid != headers_list[idx-1].fid:
+            for fid in tacho_gen1.eFID:
+                if(headers_list[idx].fid == fid.value["FID"]):
+                    print("| {:<36} | {:<37} |".format(fid.value["name"], ""))
+                    break
+            print("|   {:<34} | {:<37} |".format("FID:", headers_list[idx].fid.hex()))
+            print("|   {:<34} | {:<37} |".format("Appendix:", headers_list[idx].appendix))
+            print("|   {:<34} | {:<37} |".format("Data Length:", int.from_bytes(headers_list[idx].data_length, "big")))
+            if idx < (len(headers_list) - 1):
+                if headers_list[idx].fid == headers_list[idx+1].fid:
+                    separate = False
+        else:
+            print("| {:<36} | {:<37} |".format("Signature:", ""))
+            print("|   {:<34} | {:<37} |".format("FID:", headers_list[idx].fid.hex()))
+            print("|   {:<34} | {:<37} |".format("Appendix:", headers_list[idx].appendix))
+            print("|   {:<34} | {:<37} |".format("Signature Length:", int.from_bytes(headers_list[idx].data_length, "big")))
 
-                fid = data[idx:idx+2]
-                signature = data[idx+2]
-                length = int.from_bytes(data[idx+3:idx+5], "big")
-                idx = idx + 5 + length
-                if fid_previous != fid:
-                    print("| {:<36} | {:<37} |".format(fid_list[fid_pointer].name, " "))
-                    print("|   {:<34} | {:<37} |".format("FID", fid.hex()))
-                    print("|   {:<34} | {:<37} |".format("Appendix", signature))
-                    print("|   {:<34} | {:<37} |".format("Data Length", length))
-                    fid_previous = fid
-                else:
-                    print("| {:<36} | {:<37} |".format("Signature", " "))
-                    print("|   {:<34} | {:<37} |".format("FID", fid.hex()))
-                    print("|   {:<34} | {:<37} |".format("Appendix", signature))
-                    print("|   {:<34} | {:<37} |".format("Signature Length", length))
+        if separate: print(separator)
+        idx += 1
 
-                if data[idx:idx+2] != fid_list[fid_pointer].value:
-                    print(separator)
-
-            if idx < len(data):
-                if data[idx:idx+2] != fid_list[fid_pointer].value:
-                    fid_pointer += 1
-                if fid_pointer == len(tacho_gen1.eFID):
-                    fid_pointer = 0
-            break
     print("#" * 80)
-    print("# {:<} {:<56} #".format("Total Bytes Parsed:", idx))
+    print("# {:^76} #".format("ANALYSIS SUMMARY"))
     print("#" * 80)
+
 
 def print_parsed_data_to_console(data: bytearray | bytes):
     print("TODO")
