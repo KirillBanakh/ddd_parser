@@ -1,4 +1,7 @@
 from email import header
+from os import sep
+from pipes import Template
+from sqlite3 import Timestamp
 from unicodedata import name
 from tacho_lib import tacho_gen1
 from dataclasses import fields, is_dataclass
@@ -30,11 +33,8 @@ def print_raw_data_to_console(data: bytearray | bytes):
     print()
 
 def save_raw_data_to_file(data: bytearray | bytes):
-    time = datetime.now()
-    time = time.strftime("%H-%M-%S")
-    date = datetime.today()
-    date = date.strftime("%d %B %Y")
-    with open(date + " " + time + " " + "Raw Output.txt", 'w') as file:
+    timestamp = datetime.now().strftime("%H-%M-%S %d %B %Y")
+    with open(timestamp + " " + "Raw Output.txt", 'w') as file:
         for idx, byte in enumerate(data):
             file.write("{0:0{1}X}".format(byte, 2))
             if (idx + 1) % 16 != 0:
@@ -46,34 +46,28 @@ def save_raw_data_to_file(data: bytearray | bytes):
 def do_analysis(data: bytearray | bytes):
     data_idx: int = 0
 
-    fid_list = list(tacho_gen1.eFID)
-    fid_idx: int = 0
-
-    header = tacho_gen1.cHeader(bytes([0x00, 0x00]))
+    header = tacho_gen1.cHeader()
     header_list: list = []
 
     HEADER_OFFSET = 5 # fid + appendix + data_length bytes
 
     while data_idx < len(data):
-        if fid_idx == len(fid_list) and data_idx < len(data):
-            fid_idx = 0
-        while fid_idx < len(fid_list):
-            if data[data_idx:data_idx+2] != fid_list[fid_idx].value["FID"]:
-                fid_idx += 1
-                break
+        if tacho_gen1.eFID.seek(data[data_idx:data_idx+2]):
             header.fid = data[data_idx:data_idx+2]
             header.appendix = data[data_idx+2]
             header.data_length = data[data_idx+3:data_idx+5]
-            data_idx = data_idx + int.from_bytes(header.data_length, "big") + HEADER_OFFSET
+
             header_list.append(header)
             header_list = copy.deepcopy(header_list)
+
+            data_idx = data_idx + int.from_bytes(header.data_length, "big") + HEADER_OFFSET
     return header_list
 
 def print_analysis(data: bytearray | bytes):
     separator = "+" + "-" * 38 + "+" + "-" * 39 + "+"
-    separate: bool = True
-    headers_list = do_analysis(data)
+
     idx: int = 0
+    headers_list = do_analysis(data)
 
     print("#" * 80)
     print("# {:^76} #".format("ANALYSIS REPORT"))
@@ -81,25 +75,22 @@ def print_analysis(data: bytearray | bytes):
     print(separator)
 
     while idx < len(headers_list):
-        separate = True
+
         if headers_list[idx].fid != headers_list[idx-1].fid:
-            for fid in tacho_gen1.eFID:
-                if(headers_list[idx].fid == fid.value["FID"]):
-                    print("| {:<36} | {:<37} |".format(fid.value["name"], ""))
-                    break
+            print("| {:<36} | {:<37} |".format(tacho_gen1.eFID.get_name(headers_list[idx].fid), ""))
             print("|   {:<34} | {:<37} |".format("FID:", headers_list[idx].fid.hex()))
             print("|   {:<34} | {:<37} |".format("Appendix:", headers_list[idx].appendix))
             print("|   {:<34} | {:<37} |".format("Data Length:", int.from_bytes(headers_list[idx].data_length, "big")))
-            if idx < (len(headers_list) - 1):
-                if headers_list[idx].fid == headers_list[idx+1].fid:
-                    separate = False
+
         else:
             print("| {:<36} | {:<37} |".format("Signature:", ""))
             print("|   {:<34} | {:<37} |".format("FID:", headers_list[idx].fid.hex()))
             print("|   {:<34} | {:<37} |".format("Appendix:", headers_list[idx].appendix))
             print("|   {:<34} | {:<37} |".format("Signature Length:", int.from_bytes(headers_list[idx].data_length, "big")))
 
-        if separate: print(separator)
+        if idx < (len(headers_list) - 1) and headers_list[idx].fid != headers_list[idx+1].fid:
+            print(separator)
+
         idx += 1
 
     print("#" * 80)

@@ -17,27 +17,39 @@ from enum import Enum
 # Constants                                                                    #
 ################################################################################
 class eFID(Enum):
-    MF                         = {"name": "MF"                           , "FID": bytes([0x3F, 0x00])}
-    ICC                        = {"name": "EF ICC"                       , "FID": bytes([0x00, 0x02])}
-    IC                         = {"name": "EF IC"                        , "FID": bytes([0x00, 0x05])}
-    DIR                        = {"name": "EF DIR"                       , "FID": bytes([0x2F, 0x00])}
-    ATR_INFO                   = {"name": "EF ATR/INFO"                  , "FID": bytes([0x2F, 0x01])}
-    EXTENDED_LENGTH            = {"name": "EF EXTENDED_LENGTH"           , "FID": bytes([0x00, 0x06])}
-    TACHOGRAPH                 = {"name": "DF Tachograph"                , "FID": bytes([0x05, 0x00])}
-    APPLICATION_IDENTIFICATION = {"name": "EF Application_Identification", "FID": bytes([0x05, 0x01])}
-    CARD_CERTIFICATE           = {"name": "EF Card_Certificate"          , "FID": bytes([0xC1, 0x00])}
-    CA_CERTIFICATE             = {"name": "EF CA_Certificate"            , "FID": bytes([0xC1, 0x08])}
-    IDENTIFICATION             = {"name": "EF Identification"            , "FID": bytes([0x05, 0x20])}
-    CARD_DOWNLOAD              = {"name": "EF Card_Download"             , "FID": bytes([0x05, 0x0E])}
-    DRIVING_LICENSE_INFO       = {"name": "EF Driving_License_Info"      , "FID": bytes([0x05, 0x21])}
-    EVENTS_DATA                = {"name": "EF Events_Data"               , "FID": bytes([0x05, 0x02])}
-    FAULTS_DATA                = {"name": "EF Faults_Data"               , "FID": bytes([0x05, 0x03])}
-    DRIVER_ACTIVITY_DATA       = {"name": "EF Driver_Activity_Data"      , "FID": bytes([0x05, 0x04])}
-    VEHICLE_USED               = {"name": "EF Vehicle_Used"              , "FID": bytes([0x05, 0x05])}
-    PLACES                     = {"name": "EF Places"                    , "FID": bytes([0x05, 0x06])}
-    CURRENT_USAGE              = {"name": "EF Current_Usage"             , "FID": bytes([0x05, 0x07])}
-    CONTROL_ACTIVITY_DATA      = {"name": "EF Control_Activity_Data"     , "FID": bytes([0x05, 0x08])}
-    SPECIFIC_CONDITIONS        = {"name": "EF Specific_Conditions"       , "FID": bytes([0x05, 0x22])}
+    MF                         = {"name": "MF"                           , "fid": bytes([0x3F, 0x00])}
+    ICC                        = {"name": "EF ICC"                       , "fid": bytes([0x00, 0x02])}
+    IC                         = {"name": "EF IC"                        , "fid": bytes([0x00, 0x05])}
+    DIR                        = {"name": "EF DIR"                       , "fid": bytes([0x2F, 0x00])}
+    ATR_INFO                   = {"name": "EF ATR/INFO"                  , "fid": bytes([0x2F, 0x01])}
+    EXTENDED_LENGTH            = {"name": "EF EXTENDED_LENGTH"           , "fid": bytes([0x00, 0x06])}
+    TACHOGRAPH                 = {"name": "DF Tachograph"                , "fid": bytes([0x05, 0x00])}
+    APPLICATION_IDENTIFICATION = {"name": "EF Application_Identification", "fid": bytes([0x05, 0x01])}
+    CARD_CERTIFICATE           = {"name": "EF Card_Certificate"          , "fid": bytes([0xC1, 0x00])}
+    CA_CERTIFICATE             = {"name": "EF CA_Certificate"            , "fid": bytes([0xC1, 0x08])}
+    IDENTIFICATION             = {"name": "EF Identification"            , "fid": bytes([0x05, 0x20])}
+    CARD_DOWNLOAD              = {"name": "EF Card_Download"             , "fid": bytes([0x05, 0x0E])}
+    DRIVING_LICENSE_INFO       = {"name": "EF Driving_License_Info"      , "fid": bytes([0x05, 0x21])}
+    EVENTS_DATA                = {"name": "EF Events_Data"               , "fid": bytes([0x05, 0x02])}
+    FAULTS_DATA                = {"name": "EF Faults_Data"               , "fid": bytes([0x05, 0x03])}
+    DRIVER_ACTIVITY_DATA       = {"name": "EF Driver_Activity_Data"      , "fid": bytes([0x05, 0x04])}
+    VEHICLE_USED               = {"name": "EF Vehicle_Used"              , "fid": bytes([0x05, 0x05])}
+    PLACES                     = {"name": "EF Places"                    , "fid": bytes([0x05, 0x06])}
+    CURRENT_USAGE              = {"name": "EF Current_Usage"             , "fid": bytes([0x05, 0x07])}
+    CONTROL_ACTIVITY_DATA      = {"name": "EF Control_Activity_Data"     , "fid": bytes([0x05, 0x08])}
+    SPECIFIC_CONDITIONS        = {"name": "EF Specific_Conditions"       , "fid": bytes([0x05, 0x22])}
+
+    def seek(fid_to_seek):
+        for fid in eFID:
+            if fid.value["fid"] == fid_to_seek:
+                return True
+        return False
+
+    def get_name(fid_to_seek):
+        for fid in eFID:
+            if fid.value["fid"] == fid_to_seek:
+                return fid.value["name"]
+        return
 
 TSC_145 = bytes([0x61, 0x08, 0x4F, 0x06, 0xFF,
                  0x54, 0x41, 0x43, 0x48, 0x4F,
@@ -48,9 +60,9 @@ TSC_145 = bytes([0x61, 0x08, 0x4F, 0x06, 0xFF,
 ################################################################################
 @dataclass
 class cHeader:
-    fid:         bytes
+    fid:         bytearray = bytearray([0x00] * 2)
     appendix:    bytearray = bytearray([0x00] * 1)
-    data_length: bytearray = bytearray([0x00] * 3)
+    data_length: bytearray = bytearray([0x00] * 2)
 ################################################################################
 # EF ICC                                                                       #
 ################################################################################
@@ -65,7 +77,7 @@ class cCardIccIdentification:
 
 @dataclass
 class cEF_ICC:
-    Header:                cHeader = cHeader(eFID.ICC.value["FID"])
+    Header:                cHeader = cHeader(eFID.ICC.value["fid"])
     CardIccIdentification: cCardIccIdentification = cCardIccIdentification()
 ################################################################################
 # EF IC                                                                        #
@@ -77,28 +89,28 @@ class cCardChipIdentification:
 
 @dataclass
 class cEF_IC:
-    Header:                 cHeader = cHeader(eFID.IC.value["FID"])
+    Header:                 cHeader = cHeader(eFID.IC.value["fid"])
     CardChipIdentification: cCardChipIdentification = cCardChipIdentification()
 ################################################################################
 # EF DIR                                                                       #
 ################################################################################
 @dataclass
 class cEF_DIR:
-    Header:  cHeader = cHeader(eFID.DIR.value["FID"])
+    Header:  cHeader = cHeader(eFID.DIR.value["fid"])
     Data:    bytearray = bytearray([0x00] * 20)
 ################################################################################
 # EF ATR/INFO                                                                  #
 ################################################################################
 @dataclass
 class cEF_ATR_INFO:
-    Header: cHeader = cHeader(eFID.ATR_INFO.value["FID"])
+    Header: cHeader = cHeader(eFID.ATR_INFO.value["fid"])
     Data:   bytearray = bytearray([0x00] * 128)
 ################################################################################
 # EF EXTENDED_LENGTH                                                           #
 ################################################################################
 @dataclass
 class cEF_Extended_Length:
-    Header: cHeader = cHeader(eFID.EXTENDED_LENGTH.value["FID"])
+    Header: cHeader = cHeader(eFID.EXTENDED_LENGTH.value["fid"])
     Data:   bytearray = bytearray([0x00] * 3)
 ################################################################################
 # EF ApplicationIdentification                                                 #
@@ -115,21 +127,21 @@ class cDriverCardApplicationIdentification:
 
 @dataclass
 class cEF_Application_Identification:
-    Header:                              cHeader = cHeader(eFID.APPLICATION_IDENTIFICATION.value["FID"])
+    Header:                              cHeader = cHeader(eFID.APPLICATION_IDENTIFICATION.value["fid"])
     DriverCardApplicationIdentification: cDriverCardApplicationIdentification = cDriverCardApplicationIdentification()
 ################################################################################
 # EF Card_Certificate                                                          #
 ################################################################################
 @dataclass
 class cEF_Card_Certificate:
-    Header:          cHeader = cHeader(eFID.CARD_CERTIFICATE.value["FID"])
+    Header:          cHeader = cHeader(eFID.CARD_CERTIFICATE.value["fid"])
     CardCertificate: bytearray = bytearray([0x00] * 194)
 ################################################################################
 # EF CA_Certificate #
 ################################################################################
 @dataclass
 class cCA_Certificate:
-    Header:                 cHeader = cHeader(eFID.CA_CERTIFICATE.value["FID"])
+    Header:                 cHeader = cHeader(eFID.CA_CERTIFICATE.value["fid"])
     MemberStateCertificate: bytearray = bytearray([0x00] * 194)
 ################################################################################
 # EF Identification                                                            #
@@ -156,7 +168,7 @@ class cDriverCardHolderIdentification:
 
 @dataclass
 class cEF_Identification:
-    Header:                         cHeader = cHeader(eFID.IDENTIFICATION.value["FID"])
+    Header:                         cHeader = cHeader(eFID.IDENTIFICATION.value["fid"])
     CardIdentification:             cCardIdentification = cCardIdentification()
     DriverCardHolderIdentification: cDriverCardHolderIdentification = cDriverCardHolderIdentification()
 ################################################################################
@@ -164,7 +176,7 @@ class cEF_Identification:
 ################################################################################
 @dataclass
 class cEF_Card_Download:
-    Header:           cHeader = cHeader(eFID.CARD_DOWNLOAD.value["FID"])
+    Header:           cHeader = cHeader(eFID.CARD_DOWNLOAD.value["fid"])
     LastCardDownload: bytearray = bytearray([0x00] * 4)
 ################################################################################
 # EF Driving_License_Info                                                      #
@@ -177,7 +189,7 @@ class cCardDrivingLicenseInformation:
 
 @dataclass
 class cEF_Driving_License_Info:
-    Header:                        cHeader = cHeader(eFID.DRIVING_LICENSE_INFO.value["FID"])
+    Header:                        cHeader = cHeader(eFID.DRIVING_LICENSE_INFO.value["fid"])
     CardDrivingLicenseInformation: cCardDrivingLicenseInformation = cCardDrivingLicenseInformation()
 ################################################################################
 # EF Events_Data                                                               #
@@ -200,7 +212,7 @@ class cCardEventData:
 
 @dataclass
 class cEF_Events_Data:
-    Header:        cHeader = cHeader(eFID.EVENTS_DATA.value["FID"])
+    Header:        cHeader = cHeader(eFID.EVENTS_DATA.value["fid"])
     CardEventData: cCardEventData = cCardEventData()
 ################################################################################
 # EF Faults_Data                                                               #
@@ -223,7 +235,7 @@ class cCardFaultData:
 
 @dataclass
 class cEF_Faults_Data:
-    Header:        cHeader = cHeader(eFID.FAULTS_DATA.value["FID"])
+    Header:        cHeader = cHeader(eFID.FAULTS_DATA.value["fid"])
     CardFaultData: cCardFaultData = cCardFaultData()
 ################################################################################
 # EF Driver_Activity_Data                                                      #
@@ -236,7 +248,7 @@ class cCardDriverActivity:
 
 @dataclass
 class cEF_Driver_Activity_Data:
-    Header:             cHeader = cHeader(eFID.DRIVER_ACTIVITY_DATA.value["FID"])
+    Header:             cHeader = cHeader(eFID.DRIVER_ACTIVITY_DATA.value["fid"])
     CardDriverActivity: cCardDriverActivity = cCardDriverActivity()
 ################################################################################
 # EF Vehicle_Used                                                              #
@@ -262,7 +274,7 @@ class cCardVehiclesUsed:
 
 @dataclass
 class cEF_Vehicle_Used:
-    Header:           cHeader = cHeader(eFID.VEHICLE_USED.value["FID"])
+    Header:           cHeader = cHeader(eFID.VEHICLE_USED.value["fid"])
     CardVehiclesUsed: cCardVehiclesUsed = cCardVehiclesUsed()
 ################################################################################
 # EF Places                                                                    #
@@ -281,7 +293,7 @@ class cCardPlaceDailyWorkPeriod:
 
 @dataclass
 class cEF_Places:
-    Header:                   cHeader = cHeader(eFID.PLACES.value["FID"])
+    Header:                   cHeader = cHeader(eFID.PLACES.value["fid"])
     CardPlaceDailyWorkPeriod: cCardPlaceDailyWorkPeriod = cCardPlaceDailyWorkPeriod()
 ################################################################################
 # EF Current_Usage                                                             #
@@ -298,7 +310,7 @@ class cCardCurrentUse:
 
 @dataclass
 class cEF_Current_Usage:
-    Header:         cHeader = cHeader(eFID.CURRENT_USAGE.value["FID"])
+    Header:         cHeader = cHeader(eFID.CURRENT_USAGE.value["fid"])
     CardCurrentUse: cCardCurrentUse = cCardCurrentUse()
 ################################################################################
 # EF Control_Activity_Data                                                     #
@@ -325,7 +337,7 @@ class cCardControlActivityDataRecord:
 
 @dataclass
 class cEF_Control_Activity_Data:
-    Header:                        cHeader = cHeader(eFID.CONTROL_ACTIVITY_DATA.value["FID"])
+    Header:                        cHeader = cHeader(eFID.CONTROL_ACTIVITY_DATA.value["fid"])
     CardControlActivityDataRecord: cCardControlActivityDataRecord = cCardControlActivityDataRecord()
 ################################################################################
 # SpecificConditionRecord                                                      #
@@ -337,14 +349,14 @@ class cSpecificConditionRecord:
 
 @dataclass
 class cEF_Specific_Conditions:
-    Header:                   cHeader = cHeader(eFID.SPECIFIC_CONDITIONS.value["FID"])
+    Header:                   cHeader = cHeader(eFID.SPECIFIC_CONDITIONS.value["fid"])
     SpecificConditionRecords: list[cSpecificConditionRecord] = field(default_factory=lambda: [cSpecificConditionRecord()] * 56)
 ################################################################################
 # DF Tachograph                                                                #
 ################################################################################
 @dataclass
 class cDF_Tachograph:
-    Header:                        cHeader = cHeader(eFID.TACHOGRAPH.value["FID"])
+    Header:                        cHeader = cHeader(eFID.TACHOGRAPH.value["fid"])
     EF_Application_Identification: cEF_Application_Identification = cEF_Application_Identification()
     EF_Card_Certificate:           cEF_Card_Certificate = cEF_Card_Certificate()
     CA_Certificate:                cCA_Certificate = cCA_Certificate()
@@ -365,7 +377,7 @@ class cDF_Tachograph:
 ################################################################################
 @dataclass
 class cMF:
-    Header:             cHeader = cHeader(eFID.MF.value["FID"])
+    Header:             cHeader = cHeader(eFID.MF.value["fid"])
     EF_ICC:             cEF_ICC = cEF_ICC()
     EF_IC:              cEF_IC = cEF_IC()
     EF_DIR:             cEF_DIR = cEF_DIR()

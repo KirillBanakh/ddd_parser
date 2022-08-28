@@ -1,9 +1,5 @@
-from tacho_lib import tacho_gen1
 from tacho_lib import tacho_parser
 import argparse
-
-
-# py .\sandbox.py -f "../DDD Test File/work2.DDD"  -pr -sr -pp -sp
 
 input_parser = argparse.ArgumentParser(description="Script for parsing *.DDD files")
 input_parser.add_argument("-f", "--file", help="path to *.DDD file")
