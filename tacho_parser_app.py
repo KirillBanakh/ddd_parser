@@ -14,19 +14,21 @@ arguments = input_parser.parse_args()
 with open(arguments.file, 'rb') as file:
     raw_data = file.read()
 
-    if arguments.print_analysis == True:
+    if arguments.print_analysis:
         tacho_parser.print_analysis(raw_data)
 
-    if arguments.print_raw == True:
+    if arguments.save_analysis:
+        tacho_parser.save_analysis(raw_data)
+    if arguments.print_raw:
         tacho_parser.print_raw_data_to_console(raw_data)
 
-    if arguments.save_raw == True:
+    if arguments.save_raw:
         tacho_parser.save_raw_data_to_file(raw_data)
 
-    if arguments.print_parsed == True:
+    if arguments.print_parsed:
         tacho_parser.print_parsed_data_to_console(raw_data)
 
-    if arguments.save_parsed == True:
+    if arguments.save_parsed:
         print("TODO")
 
     file.close
