@@ -27,7 +27,7 @@ with open(arguments.file, 'rb') as file:
         tacho_parser.save_raw_data(raw_data)
 
     if arguments.print_parsed:
-        tacho_parser.print_parsed_data_to_console(raw_data)
+        tacho_parser.print_parsed_data(raw_data)
 
     if arguments.save_parsed:
         print("TODO")

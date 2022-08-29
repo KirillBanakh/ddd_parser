@@ -64,12 +64,18 @@ class eFID(Enum):
         for fid in eFID:
             if fid.value["fid"] == fid_to_seek:
                 return fid.value["name"]
-        return
+        return "Not Found"
 
 TSC_145 = bytes([0x61, 0x08, 0x4F, 0x06, 0xFF,
                  0x54, 0x41, 0x43, 0x48, 0x4F,
                  0x61, 0x08, 0x4F, 0x06, 0xFF,
                  0x53, 0x4D, 0x52, 0x44, 0x54])
+
+class eAppendix(Enum):
+    TACHO_GEN1: 0
+    TACHO_GEN1_SIGNATURE: 1
+    TACHO_GEN2: 2
+    TACHO_GEN2_SIGNATURE: 3
 ################################################################################
 # Header                                                                       #
 ################################################################################
@@ -78,6 +84,11 @@ class cHeader:
     fid:         bytearray = bytearray([0x00] * 2)
     appendix:    bytearray = bytearray([0x00] * 1)
     data_length: bytearray = bytearray([0x00] * 2)
+
+@dataclass
+class cHeaderWithData:
+    Header: cHeader = cHeader()
+    data:   bytearray = bytearray([0x00])
 ################################################################################
 # EF ICC                                                                       #
 ################################################################################
@@ -132,7 +143,7 @@ class cEF_Extended_Length:
 ################################################################################
 @dataclass
 class cDriverCardApplicationIdentification:
-    typeOfTachographCardId:  bytearray = bytearray([0x00] * 3)
+    typeOfTachographCardId:  bytearray = bytearray([0x00] * 1)
     cardStructureVersion:    bytearray = bytearray([0x00] * 2)
     noOfEventsPerType:       bytearray = bytearray([0x00] * 1)
     noOfFaultsPerType:       bytearray = bytearray([0x00] * 1)

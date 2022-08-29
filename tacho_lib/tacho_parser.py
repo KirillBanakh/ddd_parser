@@ -161,9 +161,31 @@ def save_analysis(data: bytearray | bytes):
 
         file.close()
 
-def print_parsed_data_to_console(data: bytearray | bytes):
+def split_data(data: bytearray | bytes):
+    data_idx: int = 0
+
+    header = tacho.cHeaderWithData()
+    header_list: list = []
+
+    HEADER_OFFSET = 5 # fid + appendix + data_length bytes
+
+    while data_idx < len(data):
+        if tacho.eFID.seek(data[data_idx:data_idx+2]):
+            header.Header.fid = data[data_idx:data_idx+2]
+            header.Header.appendix = data[data_idx+2]
+            header.Header.data_length = data[data_idx+3:data_idx+5]
+            data_start = data_idx + HEADER_OFFSET
+            data_end = data_start + int.from_bytes(header.Header.data_length, "big")
+            header.data = data[data_start:data_end]
+            header_list.append(header)
+            header_list = copy.deepcopy(header_list)
+
+            data_idx = data_idx + int.from_bytes(header.Header.data_length, "big") + HEADER_OFFSET
+    return header_list
+
+def print_parsed_data(data: bytearray | bytes):
     print("TODO")
-    print_analysis(data)
+    split_data(data)
 
 
 
