@@ -19,11 +19,12 @@ with open(arguments.file, 'rb') as file:
 
     if arguments.save_analysis:
         tacho_parser.save_analysis(raw_data)
+
     if arguments.print_raw:
-        tacho_parser.print_raw_data_to_console(raw_data)
+        tacho_parser.print_raw_data(raw_data)
 
     if arguments.save_raw:
-        tacho_parser.save_raw_data_to_file(raw_data)
+        tacho_parser.save_raw_data(raw_data)
 
     if arguments.print_parsed:
         tacho_parser.print_parsed_data_to_console(raw_data)
