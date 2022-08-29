@@ -16,28 +16,43 @@ from enum import Enum
 ################################################################################
 # Constants                                                                    #
 ################################################################################
+class eTachoGen(Enum):
+    Gen1 = 1
+    Gen2 = 2
+
 class eFID(Enum):
-    MF                         = {"name": "MF"                           , "fid": bytes([0x3F, 0x00])}
-    ICC                        = {"name": "EF ICC"                       , "fid": bytes([0x00, 0x02])}
-    IC                         = {"name": "EF IC"                        , "fid": bytes([0x00, 0x05])}
-    DIR                        = {"name": "EF DIR"                       , "fid": bytes([0x2F, 0x00])}
-    ATR_INFO                   = {"name": "EF ATR/INFO"                  , "fid": bytes([0x2F, 0x01])}
-    EXTENDED_LENGTH            = {"name": "EF EXTENDED_LENGTH"           , "fid": bytes([0x00, 0x06])}
-    TACHOGRAPH                 = {"name": "DF Tachograph"                , "fid": bytes([0x05, 0x00])}
-    APPLICATION_IDENTIFICATION = {"name": "EF Application_Identification", "fid": bytes([0x05, 0x01])}
-    CARD_CERTIFICATE           = {"name": "EF Card_Certificate"          , "fid": bytes([0xC1, 0x00])}
-    CA_CERTIFICATE             = {"name": "EF CA_Certificate"            , "fid": bytes([0xC1, 0x08])}
-    IDENTIFICATION             = {"name": "EF Identification"            , "fid": bytes([0x05, 0x20])}
-    CARD_DOWNLOAD              = {"name": "EF Card_Download"             , "fid": bytes([0x05, 0x0E])}
-    DRIVING_LICENSE_INFO       = {"name": "EF Driving_License_Info"      , "fid": bytes([0x05, 0x21])}
-    EVENTS_DATA                = {"name": "EF Events_Data"               , "fid": bytes([0x05, 0x02])}
-    FAULTS_DATA                = {"name": "EF Faults_Data"               , "fid": bytes([0x05, 0x03])}
-    DRIVER_ACTIVITY_DATA       = {"name": "EF Driver_Activity_Data"      , "fid": bytes([0x05, 0x04])}
-    VEHICLE_USED               = {"name": "EF Vehicle_Used"              , "fid": bytes([0x05, 0x05])}
-    PLACES                     = {"name": "EF Places"                    , "fid": bytes([0x05, 0x06])}
-    CURRENT_USAGE              = {"name": "EF Current_Usage"             , "fid": bytes([0x05, 0x07])}
-    CONTROL_ACTIVITY_DATA      = {"name": "EF Control_Activity_Data"     , "fid": bytes([0x05, 0x08])}
-    SPECIFIC_CONDITIONS        = {"name": "EF Specific_Conditions"       , "fid": bytes([0x05, 0x22])}
+    MF                            = {"name": "MF"                               , "fid": bytes([0x3F, 0x00])}
+    ICC                           = {"name": "EF ICC"                           , "fid": bytes([0x00, 0x02])}
+    IC                            = {"name": "EF IC"                            , "fid": bytes([0x00, 0x05])}
+    DIR                           = {"name": "EF DIR"                           , "fid": bytes([0x2F, 0x00])}
+    ATR_INFO                      = {"name": "EF ATR/INFO"                      , "fid": bytes([0x2F, 0x01])}
+    EXTENDED_LENGTH               = {"name": "EF EXTENDED_LENGTH"               , "fid": bytes([0x00, 0x06])}
+    TACHOGRAPH                    = {"name": "DF Tachograph"                    , "fid": bytes([0x05, 0x00])}
+    APPLICATION_IDENTIFICATION    = {"name": "EF Application_Identification"    , "fid": bytes([0x05, 0x01])}
+    CARD_CERTIFICATE              = {"name": "EF CardMA_Certificate"            , "fid": bytes([0xC1, 0x00])}
+    CARD_SIGN_CERTIFICATE         = {"name": "EF CardSignCertificate"           , "fid": bytes([0xC1, 0x01])}
+    CA_CERTIFICATE                = {"name": "EF CA_Certificate"                , "fid": bytes([0xC1, 0x08])}
+    LINK_CERTIFICATE              = {"name": "EF Link_Certificate"              , "fid": bytes([0xC1, 0x09])}
+    IDENTIFICATION                = {"name": "EF Identification"                , "fid": bytes([0x05, 0x20])}
+    CARD_DOWNLOAD                 = {"name": "EF Card_Download"                 , "fid": bytes([0x05, 0x0E])}
+    DRIVING_LICENSE_INFO          = {"name": "EF Driving_License_Info"          , "fid": bytes([0x05, 0x21])}
+    EVENTS_DATA                   = {"name": "EF Events_Data"                   , "fid": bytes([0x05, 0x02])}
+    FAULTS_DATA                   = {"name": "EF Faults_Data"                   , "fid": bytes([0x05, 0x03])}
+    DRIVER_ACTIVITY_DATA          = {"name": "EF Driver_Activity_Data"          , "fid": bytes([0x05, 0x04])}
+    VEHICLE_USED                  = {"name": "EF Vehicle_Used"                  , "fid": bytes([0x05, 0x05])}
+    PLACES                        = {"name": "EF Places"                        , "fid": bytes([0x05, 0x06])}
+    CURRENT_USAGE                 = {"name": "EF Current_Usage"                 , "fid": bytes([0x05, 0x07])}
+    CONTROL_ACTIVITY_DATA         = {"name": "EF Control_Activity_Data"         , "fid": bytes([0x05, 0x08])}
+    SPECIFIC_CONDITIONS           = {"name": "EF Specific_Conditions"           , "fid": bytes([0x05, 0x22])}
+    VEHICLE_UNITS_USED            = {"name": "EF VehicleUnits_Used"             , "fid": bytes([0x05, 0x23])}
+    GNSS_PLACES                   = {"name": "EF GNSS_Places"                   , "fid": bytes([0x05, 0x24])}
+    APPLICATION_IDENTIFICATION_V2 = {"name": "EF Application_Identification_V2" , "fid": bytes([0x05, 0x25])}
+    PLACES_AUTHENTICATION         = {"name": "EF Places_Authentication"         , "fid": bytes([0x05, 0x26])}
+    GNSS_PLACES_AUTHENTICATION    = {"name": "EF GNSS_Places_Authentication"    , "fid": bytes([0x05, 0x27])}
+    BORDER_CROSSINGS              = {"name": "EF Border_Crossings"              , "fid": bytes([0x05, 0x28])}
+    LOAD_UNLOAD_OPERATIONS        = {"name": "EF Load_Unload_Operations"        , "fid": bytes([0x05, 0x29])}
+    LOAD_TYPE_ENTRIES             = {"name": "EF Load_Type_Entries"             , "fid": bytes([0x05, 0x30])}
+    VU_CONFIGURATION              = {"name": "EF Vu_Configuration"              , "fid": bytes([0x05, 0x40])}
 
     def seek(fid_to_seek):
         for fid in eFID:
